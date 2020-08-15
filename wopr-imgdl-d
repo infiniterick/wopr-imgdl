@@ -1,0 +1,10 @@
+#!/bin/sh
+if [ -z "$1" ] || [ -z "$2" ] ; then
+    echo "usage: wopr-imgdl-d <secrets dir> <image cache dir>"
+    exit 1
+fi
+
+sudo docker rm -f wopr-imgdl
+sudo docker run --name wopr-imgdl -d --restart unless-stopped --network hainet -v $1:/secrets -v $2:/imagecache wopr-imgdl-arm:latest
+sudo docker logs wopr-imgdl
+
