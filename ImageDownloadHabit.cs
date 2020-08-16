@@ -68,6 +68,9 @@ namespace Wopr.ImageDownloader
             using(var pipeline = client.CreatePipeline()){
                 
                 foreach(var url in urlmap){
+
+                    //fixup urls that dont start with http...
+                    //if(!url.Value.StartsWith("HTTP"))
                     DownloadImage(url.Key, url.Value, skipExisting: true).Wait();
                     var watchkey = $"{RedisPaths.WatchedContent}:{url.Key}";
                     pipeline.QueueCommand(c => c.SetEntryInHash(watchkey, "url", url.Value));
@@ -78,7 +81,7 @@ namespace Wopr.ImageDownloader
         }
 
         private Dictionary<string, string> ScanChannelForLinks(string channel){
-            var urlExtractor = new Regex(@"\b(?:https?://)?(?:(?i:[a-z]+\.)+)[^\s,]+\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            var urlExtractor = new Regex(@"\b(?:https?://)?(?:(?i:[-a-z]+\.)+)[^\s,]+\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
             
             var urlmap = new Dictionary<string,string>();
             using(var outerClient = redisPool.GetClient()){
